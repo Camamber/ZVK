@@ -19,6 +19,7 @@ let url = 'https://www.cvk.gov.ua/pls/vp2019/wp300pt001f01=720.html';
 
 
 app.get('/', function(req, res) {
+	console.log(getPoll());
 	res.send(getPoll());
 });
 
