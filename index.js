@@ -19,35 +19,42 @@ let url = 'https://www.cvk.gov.ua/pls/vp2019/wp300pt001f01=720.html';
 
 
 app.get('/', function(req, res) {
-	
+	res.send(getPoll);
+});
+
+setInterval(() => {
+	let poll = getPoll();
+	if(poll) {
+		let text = '';
+		for(let p of poll) {
+			text += `${p.name} ${p.percent} ${p.count}\n`
+		}
+		sendMsg(339018008, text);
+	}
+}, 2*60*60*1000);
+
+function getPoll() {
 	needle.get(url, function(err, resp) {
 	    if (!err) {
 	        let $ = cheerio.load(resp.body);
-	        let r = [];
-	       let text = '';
+	        let results = [];
 	        $('.pure-table tbody tr').each(function(i, td) {
 	        	if(i>2) {
 		        	let children = $(this).children();
 		        	var name = children.children().eq(0).text();
 		        	var percent = children.eq(2).text();
 		        	var count = children.eq(3).text();
-		        	r.push({'name' : name, 'percent' : percent, 'count' : count});
-		        	text += `${name} ${percent} ${count}\n`
+		        	results.push({'name' : name, 'percent' : percent, 'count' : count});
 	        	}
 	    	}); 
-	    	sendMsg(339018008, text);
-	    	res.send(r)
-	        return;
+	        return results;
 	    } else {
 	        console.log("Произошла ошибка: " + err);
-	        sendMsg(339018008,'xz');
-	        res.status(500).end();
-	        return;
+	        return null;
 	    }
 
 	});
-});
-
+}
 
 function sendMsg(id, msg) {
 
