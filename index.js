@@ -46,6 +46,7 @@ function getPoll() {
 		        	var percent = children.eq(2).text();
 		        	var count = children.eq(3).text();
 		        	results.push({'name' : name, 'percent' : percent, 'count' : count});
+		        	return results;
 	        	}
 	    	}); 
 	        return results;
