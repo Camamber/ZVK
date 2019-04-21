@@ -24,9 +24,9 @@ app.get('/', function(req, res) {
 
 setInterval(() => {
 	getPoll((poll) => {
-		if(poll) {
-			let text = '';
-			for(let p of poll) {
+		if(poll.vote) {
+			let text = `% опрацьованих протоколів по Україні	${poll[0]}\nКількість виборців, які взяли участь у голосуванні по Україні	${poll[1]}\n% виборчих бюлетенів, визнаних недійсними по Україні	${poll[2]}\n`;
+			for(let p of poll.vote) {
 				text += `${p.name} ${p.percent} ${p.count}\n`
 			}
 			sendMsg(339018008, text);
@@ -38,14 +38,17 @@ function getPoll(callback) {
 	needle.get(url, function(err, resp) {
 	    if (!err) {
 	        let $ = cheerio.load(resp.body);
-	        let results = [];
+	        let results = {vote:[]};
 	        $('.pure-table tbody tr').each(function(i, td) {
 	        	if(i>2) {
 		        	let children = $(this).children();
 		        	var name = children.children().eq(0).text();
 		        	var percent = children.eq(2).text();
 		        	var count = children.eq(3).text();
-		        	results.push({'name' : name, 'percent' : percent, 'count' : count});
+		        	results.vote.push({'name' : name, 'percent' : percent, 'count' : count});
+	        	} else {
+	        		let children = $(this).children();
+	        		results[i] = children.eq(1).text();
 	        	}
 	    	}); 
 	    	callback(results)
