@@ -19,22 +19,22 @@ let url = 'https://www.cvk.gov.ua/pls/vp2019/wp300pt001f01=720.html';
 
 
 app.get('/', function(req, res) {
-	console.log(getPoll());
-	res.send(getPoll());
+	getPoll((poll)=>{res.send(poll)});
 });
 
 setInterval(() => {
-	let poll = getPoll();
-	if(poll) {
-		let text = '';
-		for(let p of poll) {
-			text += `${p.name} ${p.percent} ${p.count}\n`
+	getPoll((poll) => {
+		if(poll) {
+			let text = '';
+			for(let p of poll) {
+				text += `${p.name} ${p.percent} ${p.count}\n`
+			}
+			sendMsg(339018008, text);
 		}
-		sendMsg(339018008, text);
-	}
+	});
 }, 2*60*60*1000);
 
-function getPoll() {
+function getPoll(callback) {
 	needle.get(url, function(err, resp) {
 	    if (!err) {
 	        let $ = cheerio.load(resp.body);
@@ -48,11 +48,10 @@ function getPoll() {
 		        	results.push({'name' : name, 'percent' : percent, 'count' : count});
 	        	}
 	    	}); 
-	    	console.log(results);
-	        return results;
+	    	callback(results)
 	    } else {
 	        console.log("Произошла ошибка: " + err);
-	        return null;
+	        callback(null)
 	    }
 
 	});
